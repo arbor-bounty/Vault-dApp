@@ -39,6 +39,8 @@ const VaultDAI_30days = initVault({ vault: window.vault_dai_30days, token: windo
 const VaultDAI_60days = initVault({ vault: window.vault_dai_60days, token: window.token_dai, platformTokenApyPercent: 13, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
 const VaultDAI_90days = initVault({ vault: window.vault_dai_90days, token: window.token_dai, platformTokenApyPercent: 16, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
 
+const VaultUSDC_AAVE= initVault({ vault: window.vault_usdc_90days, token: window.token_usdc, platformTokenApyPercent: 18, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDC', expiration_time: '28 April 2022' })
+
 const Modal = ({ handleClose, show, children }) => {
     const showHideClassName = show ? "modal display-block" : "modal display-none";
 
@@ -209,7 +211,8 @@ render() {
       <Header darkTheme={this.state.darkTheme} toggleTheme={this.toggleTheme} />
       <div className='App-container'>
 
-        <Route exact path='/' render={props => <VaultList {...props} />} />
+        {/* <Route exact path='/' render={props => <VaultList {...props} />} /> */}
+        <Route exact path='/' render={props => <VaultUSDC_AAVE {...props} />} />
 
         <Route exact path='/vault-list-eth' render={props => <VaultListEth {...props} />} />
         <Route exact path='/vault-list-wbtc' render={props => <VaultListWbtc {...props} />} />

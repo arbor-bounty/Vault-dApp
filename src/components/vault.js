@@ -6,8 +6,990 @@ import Address from './address'
 import Boxes from './boxes'
 // import Clipboard from 'react-clipboard.js'
 // import ReactTooltip from 'react-tooltip'
+const contract_address = "0xc2d1CC7AD9e052289e929eb94fd08C36a9f06795"
+const usdc_contract_address = "0x02444D214962eC73ab733bB00Ca98879efAAa73d"
+var account;
+var myShare;
+var totalAssetsinVault;
+var reserveAssetsinVault
+var collateralAssets;
+var totalSupply;
+var maxRedeem;
+var maxWithdraw;
+const usdc_contract_abi =[
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+            {
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "_spender",
+                "type": "address"
+            },
+            {
+                "name": "_value",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "_from",
+                "type": "address"
+            },
+            {
+                "name": "_to",
+                "type": "address"
+            },
+            {
+                "name": "_value",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferFrom",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "_owner",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "name": "balance",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+            {
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "_to",
+                "type": "address"
+            },
+            {
+                "name": "_value",
+                "type": "uint256"
+            }
+        ],
+        "name": "transfer",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "_owner",
+                "type": "address"
+            },
+            {
+                "name": "_spender",
+                "type": "address"
+            }
+        ],
+        "name": "allowance",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "fallback"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Approval",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
+        "type": "event"
+    }
+]
 
-export default function initVault({ vault, platformTokenApyPercent, apr=72, liquidity='ETH', token, UNDERLYING_DECIMALS=18, UNDERLYING_SYMBOL='DAI', expiration_time }) {
+const contract_abi = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "receiver",
+				"type": "address"
+			}
+		],
+		"name": "deposit",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			}
+		],
+		"name": "deposit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "caller",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			}
+		],
+		"name": "Deposit",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "receiver",
+				"type": "address"
+			}
+		],
+		"name": "mint",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "v",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "r",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "s",
+				"type": "bytes32"
+			}
+		],
+		"name": "permit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "receiver",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "redeem",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "receiver",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "caller",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "receiver",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			}
+		],
+		"name": "Withdraw",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "allowance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "asset",
+		"outputs": [
+			{
+				"internalType": "contract ERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "collateral_assets",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			}
+		],
+		"name": "convertToAssets",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			}
+		],
+		"name": "convertToShares",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "DOMAIN_SEPARATOR",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "maxDeposit",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "maxMint",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "maxRedeem",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "maxWithdraw",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "nonces",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			}
+		],
+		"name": "previewDeposit",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			}
+		],
+		"name": "previewMint",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			}
+		],
+		"name": "previewRedeem",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "assets",
+				"type": "uint256"
+			}
+		],
+		"name": "previewWithdraw",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "reserve_assets",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalAssets",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+
+
+var vaultContract;
+var usdcContract;
+export default function initVault({ vault, platformTokenApyPercent, apr=72, liquidity='ETH', token, UNDERLYING_DECIMALS=6, UNDERLYING_SYMBOL='DAI', expiration_time }) {
 
     let { BigNumber, alertify } = window
     let token_symbol = UNDERLYING_SYMBOL
@@ -136,7 +1118,34 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
             }
         }
 
-        componentDidMount() {
+        async componentDidMount() {
+			vaultContract = new window.web3.eth.Contract(contract_abi, contract_address);
+			console.log("contract good")
+			usdcContract = new window.web3.eth.Contract(usdc_contract_abi, usdc_contract_address);
+			console.log("contract good")
+			account = await window.web3.currentProvider.selectedAddress
+            totalAssetsinVault = await vaultContract.methods.totalAssets().call({
+				from: account
+			 })
+             totalSupply = await vaultContract.methods.totalSupply().call({
+				from: account
+			 })
+             reserveAssetsinVault = await vaultContract.methods.reserve_assets().call({
+				from: account
+			 })
+             collateralAssets = await vaultContract.methods.collateral_assets().call({
+				from: account
+			 })
+
+             maxRedeem = await vaultContract.methods.maxRedeem(account).call({
+				from: account
+			 })
+             maxWithdraw = await vaultContract.methods.maxWithdraw(account).call({
+				from: account
+			 })
+
+            /*add here*/
+
             this.refreshBalance()
             window._refreshBalInterval = setInterval(this.refreshBalance, 8000)
             vault.getTvlUsdAndApyPercent(UNDERLYING_DECIMALS)
@@ -152,23 +1161,41 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
         componentWillUnmount() {
             clearInterval(window._refreshBalInterval)
         }
-
-        handleApprove = (e) => {
+        //modify
+        handleApprove = (e) => { 
             e.preventDefault()
             let amount = this.state.depositAmount
             amount = new BigNumber(amount).times(10**UNDERLYING_DECIMALS).toFixed(0)
             token.approve(vault._address, amount)
         }
-        handleReinvestApprove = (e) => {
+		handleApproveDeposit = (e) => { 
+            e.preventDefault()
+            let amount = this.state.depositAmount
+            amount = new BigNumber(amount).times(10**UNDERLYING_DECIMALS).toFixed(0)
+			
+            console.log(account, amount)
+			
+            
+            usdcContract.methods.approve(contract_address,amount).send({
+				from: account
+			 })
+        }
+        handleReinvestApprove = (e) => { //remove
             e.preventDefault()
             let amount = this.state.rdepositAmount
             amount = new BigNumber(amount).times(10**18).toFixed(0)
             window.token_dyp.approve(window.config.constant_staking_address, amount)
         }
-        handleStake = async (e) => {
+        handleStake = async (e) => { //modify (handleDeposit)
             let amount = this.state.depositAmount
             amount = new BigNumber(amount).times(10**UNDERLYING_DECIMALS).toFixed(0)
-            let value = await this.getMinEthFeeInWei()
+            
+            console.log(account)
+            
+            vaultContract.methods.deposit(amount).send({
+				from: account
+			 })
+            /*let value = await this.getMinEthFeeInWei()
 
             let FEE_PERCENT_TO_BUYBACK_X_100 = await vault.FEE_PERCENT_TO_BUYBACK_X_100()
             let feeAmountEth = new BigNumber(value).times(FEE_PERCENT_TO_BUYBACK_X_100).div(100e2).toFixed(0)
@@ -186,24 +1213,31 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
             _amountOutMin_ethFeeBuyBack = new BigNumber(_amountOutMin_ethFeeBuyBack).times(100 - window.config.slippage_tolerance_percent).div(100).toFixed(0)
 
             //console.log({ _amountOutMin_ethFeeBuyBack, deadline, value })
-            vault.deposit([amount, _amountOutMin_ethFeeBuyBack, deadline], value)
+            vault.deposit([amount, _amountOutMin_ethFeeBuyBack, deadline], value)*/
         }
-        handleReinvestDeposit = async (e) => {
+        handleReinvestDeposit = async (e) => { //remove
             let amount = this.state.rdepositAmount
             amount = new BigNumber(amount).times(10**18).toFixed(0)
             window.handleReinvestDeposit(amount)
         }
 
-        handleWithdraw = async (e) => {
+        handleWithdraw = async (e) => { //MODIFY
             e.preventDefault()
             let amount = this.state.withdrawAmount
             amount = new BigNumber(amount).times(10**UNDERLYING_DECIMALS).toFixed(0)
-            let value = await this.getMinEthFeeInWei()
+            
+            console.log(account)
+            
+            vaultContract.methods.withdraw(amount).send({
+				from: account
+			 })
+            /*
+            let value = await this.getMinEthFeeInWei() //Look at this
 
-            let FEE_PERCENT_X_100 = await vault.FEE_PERCENT_X_100()
-            let FEE_PERCENT_TO_BUYBACK_X_100 = await vault.FEE_PERCENT_TO_BUYBACK_X_100()
-            let buyBackFeeAmountEth = new BigNumber(value).times(FEE_PERCENT_TO_BUYBACK_X_100).div(100e2).toFixed(0)
-            let feeAmountToken = new BigNumber(amount).times(FEE_PERCENT_X_100).div(100e2).toFixed(0)
+            let FEE_PERCENT_X_100 = await vault.FEE_PERCENT_X_100() //Look at this
+            let FEE_PERCENT_TO_BUYBACK_X_100 = await vault.FEE_PERCENT_TO_BUYBACK_X_100() //look at this
+            let buyBackFeeAmountEth = new BigNumber(value).times(FEE_PERCENT_TO_BUYBACK_X_100).div(100e2).toFixed(0) //look at this
+            let feeAmountToken = new BigNumber(amount).times(FEE_PERCENT_X_100).div(100e2).toFixed(0) 
             let buyBackFeeAmountToken = new BigNumber(feeAmountToken).times(FEE_PERCENT_TO_BUYBACK_X_100).div(100e2).toFixed(0)
 
             let deadline = Math.floor(Date.now()/1e3 + window.config.tx_max_wait_seconds)
@@ -223,11 +1257,12 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
             let _amountOutMin_tokenFeeBuyBack = await router.methods.getAmountsOut(buyBackFeeAmountToken, tokenFeePath).call()
             _amountOutMin_tokenFeeBuyBack = _amountOutMin_tokenFeeBuyBack[_amountOutMin_tokenFeeBuyBack.length - 1]
             _amountOutMin_tokenFeeBuyBack = new BigNumber(_amountOutMin_tokenFeeBuyBack).times(100 - window.config.slippage_tolerance_percent).div(100).toFixed(0)
-            
+            */
 
             //console.log({ _amountOutMin_ethFeeBuyBack, _amountOutMin_tokenFeeBuyBack, deadline, value })
-
-            vault.withdraw([amount, _amountOutMin_ethFeeBuyBack, _amountOutMin_tokenFeeBuyBack, deadline], value)
+            
+            //vault.withdraw([amount, _amountOutMin_ethFeeBuyBack, _amountOutMin_tokenFeeBuyBack, deadline], value)
+            //vault.withdraw(amount, account)
         }
 
         getMinEthFeeInWei = async () => {
@@ -280,7 +1315,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
         }
         handleSetMaxWithdraw = (e) => {
             e.preventDefault()
-            this.setState({ withdrawAmount: new BigNumber(this.state.depositedTokens).div(10**UNDERLYING_DECIMALS).toFixed(UNDERLYING_DECIMALS) })
+            this.setState({ withdrawAmount: new BigNumber(reserveAssetsinVault).div(10**UNDERLYING_DECIMALS).toFixed(UNDERLYING_DECIMALS) })
         }
 
         getAPY = () => {
@@ -492,6 +1527,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                     <div className='form-group'>
                                                         <div className='row'>
                                                             <label htmlFor='deposit-amount' className='col-md-8 d-block text-left'>DEPOSIT</label>
+                                                            {/*deposit box*/}
                                                             {/*<div className='col-4'>*/}
                                                             {/*    <a target='_blank' rel='noopener noreferrer' href={`https://app.uniswap.org/#/add/0x961C8c0B1aaD0c0b10a51FeF6a867E3091BCef17/${liquidity}`} >*/}
                                                             {/*        <button className='btn btn-sm btn-block btn-primary ' type='button'>*/}
@@ -503,15 +1539,15 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                         <div className='input-group '>
                                                             <input value={Number(this.state.depositAmount) > 0 ? this.state.depositAmount  : this.state.depositAmount} onChange={e => this.setState({ depositAmount: e.target.value })} className='form-control left-radius' placeholder='0' type='text' />
                                                             <div className='input-group-append'>
-                                                                <button className='btn  btn-primary right-radius btn-max l-light-btn' style={{ cursor: 'pointer' }} onClick={this.handleSetMaxDeposit}>
+                                                                {/*<button className='btn  btn-primary right-radius btn-max l-light-btn' style={{ cursor: 'pointer' }} onClick={this.handleSetMaxDeposit}>
                                                                     MAX
-                                                        </button>
+                                                        </button>*/}
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className='row'>
                                                         <div style={{ paddingRight: '0.3rem' }} className='col-6'>
-                                                            <button onClick={this.handleApprove} className='btn  btn-block btn-primary ' type='button'>
+                                                            <button onClick={this.handleApproveDeposit} className='btn  btn-block btn-primary ' type='button'>
                                                                 APPROVE
                                                     </button>
                                                         </div>
@@ -561,19 +1597,17 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                             <button title={canWithdraw ? '' : `You recently deposited, you can withdraw ${cliffTimeInWords}`} disabled={!canWithdraw} className='btn  btn-primary btn-block l-outline-btn' type='submit'>
                                                 WITHDRAW
                                     </button>
-                                            <p style={{fontSize: '.8rem'}} className='mt-1 text-center text-muted mt-3'>0.3% fee for withdraw (75% distributed pro-rata among active vault users, whereas the remainder 25% is used to buy back DYP and burn it)</p>
+                                            {/*<p style={{fontSize: '.8rem'}} className='mt-1 text-center text-muted mt-3'>0.3% fee for withdraw (75% distributed pro-rata among active vault users, whereas the remainder 25% is used to buy back DYP and burn it)</p>*/}
                                         </form>
                                         </div>
                                     </div>
-                                    <div className='col-12'>
+                                    {/*<div className='col-12'>
                                         <div className='l-box'>
                                         <form onSubmit={this.handleClaimDivs}>
                                             <div className='form-group'>
                                                 <label htmlFor='deposit-amount' className='text-left d-block'>REWARDS</label>
                                                 <div className='form-row'>
-                                                    {/* <div className='col-md-6'>
-                                                        <p className='form-control  text-right' style={{ border: 'none', marginBottom: 0, paddingLeft: 0, background: 'transparent', color: '#222' }}><span style={{ fontSize: '1.2rem', color: 'rgb(255, 0, 122)' }}>{pendingDivsEth}</span> <small className='text-bold'>WETH</small></p>
-                                                    </div> */}
+                                                    
                                                     <div className='col-md-12'>
                                                         <p className='form-control  text-right' style={{ border: 'none', marginBottom: 0, paddingLeft: 0, background: 'transparent', color: 'var(--text-color)' }}><span style={{ fontSize: '1.2rem', color: 'var(--text-color)' }}>{pendingDivsDyp}</span> <small className='text-bold'>{token_symbol} worth DYP</small></p>
                                                     </div>
@@ -594,17 +1628,14 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                         CLAIM
                                                     </button>
                                                 </div>
-                                                {/* <div className='col-md-6 mb-2'>
-                                                    <button className='btn  btn-primary btn-block' type='button' onClick={this.handleReinvest}>
-                                                        REINVEST
-                                                    </button>
-                                                </div> */}
+                                               
                                             </div>
                                            
                                         </form>
                                         </div>
-                                    </div>
-                                    <div className='col-12'>
+                                    </div>*/}
+                                    
+                                    {/*<div className='col-12'>
                                         <div className='l-box'>
                                         <form onSubmit={e => e.preventDefault()}>
                                             <div className='form-group'>
@@ -634,13 +1665,14 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                 </div>
                                             </div>
                                             <p style={{ fontSize: '.8rem' }} className='mt-1 text-center mb-0 text-muted mt-3'>
-                                                {/* Some info text here.<br /> */}
+                                                
                                         Please approve before reinvest.
                                     </p>
 
                                         </form>
                                         </div>
-                                    </div>
+                                    </div>*/}
+                                    {/*
                                     <div className='col-12'>
                                         <div className='l-box'> 
                                         <form onSubmit={(e) => e.preventDefault()}>
@@ -663,20 +1695,11 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                             <p style={{ fontSize: '.8rem' }} className='mt-1 text-center text-muted mt-3'>Approx. Value Not Considering Fees or unstable APY.</p>
                                         </form>
                                         </div>
-                                    </div>
+                                    </div>*/}
                                 </div>
                             </div>
                             <div className='col-lg-6'>
-                            <Boxes items={[
-                                {
-                                    title: 'TVL USD',
-                                    number: '$'+tvl_usd
-                                },
-                                {
-                                    title: `APY`,
-                                    number: getFormattedNumber(APY_TOTAL, 2) + '%'
-                                }
-                            ]} />
+                            
                                 <div className='l-box'>
                                 <div className='table-responsive'>
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '600', padding: '.3rem' }}>STATS</h3>
@@ -685,30 +1708,50 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                             <tr>
                                                 <th>My Address</th>
                                                 <td className='text-right'>
-                                                    <Address style={{ fontFamily: 'monospace' }} a={coinbase} />
+                                                    <Address style={{ fontFamily: 'monospace' }} a={account} />
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th>Contract Address</th>
                                                 <td className='text-right'>
-                                                    <Address style={{ fontFamily: 'monospace' }} a={vault._address} />
+                                                    <Address style={{ fontFamily: 'monospace' }} a={contract_address} />
                                                 </td>
                                             </tr>
-
                                             <tr>
-                                                <th>Contract Expiration</th>
-                                                <td className="text-right"><strong>{expiration_time}</strong></td>
+                                                <th>User's Shares</th>
+                                               
+                                                <td className="text-right"><strong>{BigNumber(maxRedeem).div(10**UNDERLYING_DECIMALS).toFixed(UNDERLYING_DECIMALS)}</strong> <small>Shares</small></td>
+                                               
+                                            </tr>
+                                            <tr>
+                                                <th>My {token_symbol} Balance in Vault</th>
+                                                <td className="text-right"><strong>{BigNumber(maxWithdraw).div(10**UNDERLYING_DECIMALS).toFixed(UNDERLYING_DECIMALS)}</strong> <small>{token_symbol}</small></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Total Supply (Shares)</th>
+                                                <td className="text-right"><strong>{BigNumber(totalSupply).div(10**UNDERLYING_DECIMALS).toFixed(UNDERLYING_DECIMALS)}</strong> <small>{"Shares"}</small></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Total Assets (USDC + aUSDC)</th>
+                                                <td className="text-right"><strong>{BigNumber(totalAssetsinVault).div(10**UNDERLYING_DECIMALS).toFixed(UNDERLYING_DECIMALS)}</strong> <small>{token_symbol}</small></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Reserve Assets (USDC)</th>
+                                                <td className="text-right"><strong>{BigNumber(reserveAssetsinVault).div(10**UNDERLYING_DECIMALS).toFixed(UNDERLYING_DECIMALS)}</strong> <small>{token_symbol}</small></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Collateral Assets (aUSDC)</th>
+                                                <td className="text-right"><strong>{BigNumber(collateralAssets).div(10**UNDERLYING_DECIMALS).toFixed(8)}</strong> <small>{"aUSDC"}</small></td>
                                             </tr>
 
+                                            
+                                            {/*
                                             <tr>
                                                 <th>My {token_symbol} Balance</th>
-                                                <td className="text-right"><strong>{token_balance}</strong> <small>{token_symbol}</small></td>
+                                                <td className="text-right"><strong>{myShare}</strong> <small>{token_symbol}</small></td>
                                             </tr>
 
-                                            <tr>
-                                                <th>My DYP Balance</th>
-                                                <td className="text-right"><strong>{getFormattedNumber(this.state.platform_token_balance/1e18, 6)}</strong> <small>DYP</small></td>
-                                            </tr>
+                                            
                                     
                                             <tr>
                                                 <th>MY {token_symbol} Deposit</th>
@@ -758,20 +1801,12 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                         <td className="text-right"><strong>{pendingDivs}</strong> <small>DYP</small></td>
                                     </tr> */}
 
-                                            <tr>
-                                                <td style={{ fontSize: '1rem', paddingTop: '2rem' }} colSpan='2' className='text-center'>
-                                                    <a target='_blank' rel='noopener noreferrer' href={`${window.config.etherscan_baseURL}/token/${token._address}?a=${coinbase}`}>View Transaction History on Etherscan</a> &nbsp; <i style={{ fontSize: '.8rem' }} className='fas fa-external-link-alt'></i>
-                                                </td>
-                                            </tr>
+                                            
                                            
                                             <tr>
                                         
                                     </tr>
-                                            {isOwner && <tr>
-                                                <td style={{ fontSize: '1rem' }} colSpan='2' className='text-center'>
-                                                    <a onClick={this.handleListDownload} target='_blank' rel='noopener noreferrer' href='#'><i style={{ fontSize: '.8rem' }} className='fas fa-download'></i> Download Stakers List </a>
-                                                </td>
-                                            </tr>}
+                                            
                                         </tbody>
                                     </table>
                                 </div>
