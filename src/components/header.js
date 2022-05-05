@@ -65,41 +65,12 @@ export default class Header extends React.Component {
           <div className="row">
             <div className="col-md-7 logo-column header-logo col-5">
               <h2  className='container text-left' style={{position: 'relative', maxWidth: '100%', marginLeft: '-10px' }}>
-                <a href='/' style={{ display: 'flex' }}>
-                  <img className='wlogo' style={{position: 'relative', maxWidth: '90%', objectFit: 'contain', paddingRight: '10px', height: '75px'}} alt='Staking DAPP' src='/logo192.png'
-                       height='125'/>
-                  <img className='d-none dlogo' style={{position: 'relative', maxWidth: '90%', objectFit: 'contain', paddingRight: '10px', height: '75px'}} alt='Staking DAPP' src='/img/dlogo.svg'
-                       height='125'/>
-                  {/*{' '}<p className="header-title-1" style={{ paddingLeft: '10px', marginTop: 'auto' }}>Vault</p>*/}
-                  {' '}<div className="header-title-1" style={{ paddingLeft: '25px', marginTop: 'auto' }}>
-                  <p style={{fontSize: '15px'}} className='mb-0'>Total rewards paid</p>
-
-                  {this.state.json_totalPaid.totalPaidInUsd == 0 ? (
-                      <Dots />
-                      ) : (
-                          <CountUp style={{fontSize: '20px', fontWeight: '600'}}
-                                  start={this.state.json_totalPaid.totalPaidInUsd-400.000}
-                                  end={this.state.json_totalPaid.totalPaidInUsd}
-                                  duration={120}
-                                  separator=","
-                                  decimals={2}
-                                  prefix="$"
-                      />
-                      )
-                  }
-
-                  {/*${getFormattedNumber(this.state.json_totalPaid.totalPaidInUsd,2)}*/}
-                </div>
-                </a>
               </h2>
             </div>
             <div className="col-md-5 pr-0 pl-0 col-7" id="infoPool">
               <div className="sc-eilVRo jaXjyZ">
                 <div className="sc-eerKOB bKbMab"><span className="sc-jzgbtB dwWyiU"></span>
                   <div className="sc-bnXvFD bcIrBV">
-                    <a style={{borderRadius: '15px', marginRight: '1rem', padding: '2px 7px 2px'}} href="https://github.com/dypfinance/dyp-earn-vault/tree/main/Audit" target="_blank" id="connect-wallet"
-                       className="sc-gqjmRU gacWOr sc-iAyFgw sc-jWBwVP sc-cMhqgX sc-esOvli iivcTi"><p
-                        className="sc-hMFtBS cxjZDP">Check Audits</p></a>
                   </div>
                   <div className="checkbox-drak">
                     <label className="ui-switcher" aria-checked={darkTheme}>

@@ -14,31 +14,6 @@ import VaultListDai from "./components/staking-list-dai"
 import Header from './components/header'
 import Footer from './components/footer'
 
-const VaultWETH_3days = initVault({ vault: window.vault_weth_3days, token: window.token_weth, platformTokenApyPercent: 2.5, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'WETH', expiration_time: '28 April 2022' })
-const VaultWETH_30days = initVault({ vault: window.vault_weth_30days, token: window.token_weth, platformTokenApyPercent: 7.5, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'WETH', expiration_time: '28 April 2022' })
-const VaultWETH_60days = initVault({ vault: window.vault_weth_60days, token: window.token_weth, platformTokenApyPercent: 10, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'WETH', expiration_time: '28 April 2022' })
-const VaultWETH_90days = initVault({ vault: window.vault_weth_90days, token: window.token_weth, platformTokenApyPercent: 12.5, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'WETH', expiration_time: '28 April 2022' })
-
-const VaultWBTC_3days = initVault({ vault: window.vault_wbtc_3days, token: window.token_wbtc, platformTokenApyPercent: 2.5, UNDERLYING_DECIMALS: 8, UNDERLYING_SYMBOL: 'WBTC', expiration_time: '28 April 2022' })
-const VaultWBTC_30days = initVault({ vault: window.vault_wbtc_30days, token: window.token_wbtc, platformTokenApyPercent: 7.5, UNDERLYING_DECIMALS: 8, UNDERLYING_SYMBOL: 'WBTC', expiration_time: '28 April 2022' })
-const VaultWBTC_60days = initVault({ vault: window.vault_wbtc_60days, token: window.token_wbtc, platformTokenApyPercent: 10, UNDERLYING_DECIMALS: 8, UNDERLYING_SYMBOL: 'WBTC', expiration_time: '28 April 2022' })
-const VaultWBTC_90days = initVault({ vault: window.vault_wbtc_90days, token: window.token_wbtc, platformTokenApyPercent: 12.5, UNDERLYING_DECIMALS: 8, UNDERLYING_SYMBOL: 'WBTC', expiration_time: '28 April 2022' })
-
-const VaultUSDT_3days = initVault({ vault: window.vault_usdt_3days, token: window.token_usdt, platformTokenApyPercent: 4, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDT', expiration_time: '28 April 2022' })
-const VaultUSDT_30days = initVault({ vault: window.vault_usdt_30days, token: window.token_usdt, platformTokenApyPercent: 12, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDT', expiration_time: '28 April 2022' })
-const VaultUSDT_60days = initVault({ vault: window.vault_usdt_60days, token: window.token_usdt, platformTokenApyPercent: 15, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDT', expiration_time: '28 April 2022' })
-const VaultUSDT_90days = initVault({ vault: window.vault_usdt_90days, token: window.token_usdt, platformTokenApyPercent: 18, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDT', expiration_time: '28 April 2022' })
-
-const VaultUSDC_3days = initVault({ vault: window.vault_usdc_3days, token: window.token_usdc, platformTokenApyPercent: 4, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDC', expiration_time: '28 April 2022' })
-const VaultUSDC_30days = initVault({ vault: window.vault_usdc_30days, token: window.token_usdc, platformTokenApyPercent: 12, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDC', expiration_time: '28 April 2022' })
-const VaultUSDC_60days = initVault({ vault: window.vault_usdc_60days, token: window.token_usdc, platformTokenApyPercent: 15, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDC', expiration_time: '28 April 2022' })
-const VaultUSDC_90days = initVault({ vault: window.vault_usdc_90days, token: window.token_usdc, platformTokenApyPercent: 18, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDC', expiration_time: '28 April 2022' })
-
-const VaultDAI_3days = initVault({ vault: window.vault_dai_3days, token: window.token_dai, platformTokenApyPercent: 3, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
-const VaultDAI_30days = initVault({ vault: window.vault_dai_30days, token: window.token_dai, platformTokenApyPercent: 9, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
-const VaultDAI_60days = initVault({ vault: window.vault_dai_60days, token: window.token_dai, platformTokenApyPercent: 13, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
-const VaultDAI_90days = initVault({ vault: window.vault_dai_90days, token: window.token_dai, platformTokenApyPercent: 16, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
-
 const VaultUSDC_AAVE= initVault({ vault: window.vault_usdc_90days, token: window.token_usdc, platformTokenApyPercent: 18, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDC', expiration_time: '28 April 2022' })
 
 const Modal = ({ handleClose, show, children }) => {
@@ -203,7 +178,6 @@ render() {
                     {/*    CONNECT WALLET</button>*/}
                 </div>
             </div>
-            <Footer />
         </div>);
     }
   return (
@@ -211,41 +185,8 @@ render() {
       <Header darkTheme={this.state.darkTheme} toggleTheme={this.toggleTheme} />
       <div className='App-container'>
 
-        {/* <Route exact path='/' render={props => <VaultList {...props} />} /> */}
         <Route exact path='/' render={props => <VaultUSDC_AAVE {...props} />} />
-
-        <Route exact path='/vault-list-eth' render={props => <VaultListEth {...props} />} />
-        <Route exact path='/vault-list-wbtc' render={props => <VaultListWbtc {...props} />} />
-        <Route exact path='/vault-list-usdt' render={props => <VaultListUsdt {...props} />} />
-        <Route exact path='/vault-list-usdc' render={props => <VaultListUsdc {...props} />} />
-        <Route exact path='/vault-list-dai' render={props => <VaultListDai {...props} />} />
-
-        <Route exact path='/vault-weth-3days' render={props => <VaultWETH_3days {...props} />} />
-        <Route exact path='/vault-weth-30days' render={props => <VaultWETH_30days {...props} />} />
-        <Route exact path='/vault-weth-60days' render={props => <VaultWETH_60days {...props} />} />
-        <Route exact path='/vault-weth-90days' render={props => <VaultWETH_90days {...props} />} />
-
-        <Route exact path='/vault-wbtc-3days' render={props => <VaultWBTC_3days {...props} />} />
-        <Route exact path='/vault-wbtc-30days' render={props => <VaultWBTC_30days {...props} />} />
-        <Route exact path='/vault-wbtc-60days' render={props => <VaultWBTC_60days {...props} />} />
-        <Route exact path='/vault-wbtc-90days' render={props => <VaultWBTC_90days {...props} />} />
-
-        <Route exact path='/vault-usdt-3days' render={props => <VaultUSDT_3days {...props} />} />
-        <Route exact path='/vault-usdt-30days' render={props => <VaultUSDT_30days {...props} />} />
-        <Route exact path='/vault-usdt-60days' render={props => <VaultUSDT_60days {...props} />} />
-        <Route exact path='/vault-usdt-90days' render={props => <VaultUSDT_90days {...props} />} />
-
-        <Route exact path='/vault-usdc-3days' render={props => <VaultUSDC_3days {...props} />} />
-        <Route exact path='/vault-usdc-30days' render={props => <VaultUSDC_30days {...props} />} />
-        <Route exact path='/vault-usdc-60days' render={props => <VaultUSDC_60days {...props} />} />
-        <Route exact path='/vault-usdc-90days' render={props => <VaultUSDC_90days {...props} />} />
-
-        <Route exact path='/vault-dai-3days' render={props => <VaultDAI_3days {...props} />} />
-        <Route exact path='/vault-dai-30days' render={props => <VaultDAI_30days {...props} />} />
-        <Route exact path='/vault-dai-60days' render={props => <VaultDAI_60days {...props} />} />
-        <Route exact path='/vault-dai-90days' render={props => <VaultDAI_90days {...props} />} />
       </div>
-      <Footer />
     </div>
   );
 }
